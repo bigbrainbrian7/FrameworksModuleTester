@@ -8,7 +8,10 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.ModuleTester;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -21,10 +24,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  ModuleTester moduleTester = new ModuleTester();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final CommandJoystick m_driverController = new CommandJoystick(0);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -43,12 +46,46 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
+    // new Trigger(m_exampleSubsystem::exampleCondition)
+        // .onTrue(new ExampleCommand(m_exampleSubsystem));
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+
+    m_driverController.button(1).onTrue(
+      new RunCommand(()->
+        ModuleTester.xDriveFlex.set(-m_driverController.getRawAxis(1)), 
+        moduleTester)
+      .alongWith(new RunCommand(()->
+        ModuleTester.xTurnSpark.set(m_driverController.getRawAxis(2)), 
+        m_exampleSubsystem)));
+
+    m_driverController.button(2).onTrue(
+      new RunCommand(()->
+        ModuleTester.aDriveFlex.set(-m_driverController.getRawAxis(1)), 
+        moduleTester)
+      .alongWith(new RunCommand(()->
+        ModuleTester.aTurnSpark.set(m_driverController.getRawAxis(2)), 
+        m_exampleSubsystem)));
+
+    m_driverController.button(3).onTrue(
+      new RunCommand(()->
+        ModuleTester.bDriveFlex.set(-m_driverController.getRawAxis(1)), 
+        moduleTester)
+      .alongWith(new RunCommand(()->
+        ModuleTester.bTurnSpark.set(m_driverController.getRawAxis(2)), 
+        m_exampleSubsystem)));
+
+    m_driverController.button(4).onTrue(
+      new RunCommand(()->
+        ModuleTester.yDriveFlex.set(-m_driverController.getRawAxis(1)), 
+        moduleTester)
+      .alongWith(new RunCommand(()->
+        ModuleTester.yTurnSpark.set(m_driverController.getRawAxis(2)), 
+        m_exampleSubsystem)));
+    
+        //not supposed to use example subsystem but you know what its fine
   }
 
   /**
